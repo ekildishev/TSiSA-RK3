@@ -7,13 +7,13 @@
 #include <ctime>
 #include <fstream>
 
-double fitness(std::pair<double, double> unit) // Фитнес функция
+double fitness(std::pair<double, double> unit) // Р¤РёС‚РЅРµСЃ С„СѓРЅРєС†РёСЏ
 {
 	double fit = cos(unit.first)*cos(unit.second);
 	return fit;
 }
 
-std::vector<std::pair<double, double>> startUnitGenerator() // Генерация начальной популяции
+std::vector<std::pair<double, double>> startUnitGenerator() // Р“РµРЅРµСЂР°С†РёСЏ РЅР°С‡Р°Р»СЊРЅРѕР№ РїРѕРїСѓР»СЏС†РёРё
 {
 	std::ofstream file0("file0.txt");
 	std::vector<std::pair<double, double>> unitVector(4);
@@ -54,7 +54,7 @@ std::vector<std::pair<double, double>> startUnitGenerator() // Генерация начальн
 	return unitVector;
 }
 
-std::pair<std::pair<double, double>, std::pair<double, double>> children(std::pair<double, double> parent1, std::pair<double, double> parent2) // Кроссовер
+std::pair<std::pair<double, double>, std::pair<double, double>> children(std::pair<double, double> parent1, std::pair<double, double> parent2) // РљСЂРѕСЃСЃРѕРІРµСЂ
 {
 	std::pair<double, double> child1;
 	child1.first = parent1.first;
@@ -65,7 +65,7 @@ std::pair<std::pair<double, double>, std::pair<double, double>> children(std::pa
 	return std::make_pair(child1, child2);
 }
 
-std::pair<double, double> mutation(std::pair<double, double> unit) // Мутация
+std::pair<double, double> mutation(std::pair<double, double> unit) // РњСѓС‚Р°С†РёСЏ
 {
 	std::mt19937 engine(std::random_device{}());
 	int parameter = rand() % 2;
@@ -82,7 +82,7 @@ std::pair<double, double> mutation(std::pair<double, double> unit) // Мутация
 	return unit;
 }
 
-std::pair<int, int> parentGenerator(std::vector<double> fitness, double sumFit) // Выбор родителей
+std::pair<int, int> parentGenerator(std::vector<double> fitness, double sumFit) // Р’С‹Р±РѕСЂ СЂРѕРґРёС‚РµР»РµР№
 {
 	std::pair<int, int> parent;
 	std::mt19937 engine(std::random_device{}());
@@ -135,7 +135,7 @@ std::pair<int, int> parentGenerator(std::vector<double> fitness, double sumFit) 
 	return parent;
 }
 
-std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, double>> unitVector) // Итерация
+std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, double>> unitVector) // РС‚РµСЂР°С†РёСЏ
 {
 	std::vector<std::pair<double, double>> newVector = unitVector;
 	std::mt19937 engine(std::random_device{}());
@@ -216,7 +216,7 @@ std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, d
 	return unitVector;
 }
 
-void geneticsAlgorithm(int generations) // Генетический алгоритм
+void geneticsAlgorithm(int generations) // Р“РµРЅРµС‚РёС‡РµСЃРєРёР№ Р°Р»РіРѕСЂРёС‚Рј
 {
 	std::cout << "Generation" << "\t|X\t\tY\t\tFitness\t\tMax\t\tMiddle\n";
 	std::mt19937 engine(std::random_device{}());
