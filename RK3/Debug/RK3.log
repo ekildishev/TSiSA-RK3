@@ -1,0 +1,3 @@
+﻿  Source.cpp
+c:\my projects\tsisa\rk3\rk3\source.cpp(241): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  RK3.vcxproj -> C:\My Projects\TSiSA\RK3\Debug\RK3.exe
