@@ -9,7 +9,7 @@
 
 double fitness(std::pair<double, double> unit) // Фитнес функция
 {
-	double fit = cos(unit.first)*cos(unit.second);
+	double fit = cos(unit.first)*cos(unit.second) + 1;
 	return fit;
 }
 
@@ -38,7 +38,6 @@ std::vector<std::pair<double, double>> startUnitGenerator() // Генераци�
 	}
 	for (int i = 0; i < 4; i++)
 	{
-		//fit[i] /= sumFit;
 		maxFit = std::max(maxFit, fit[i]);
 	}
 	std::cout << "\t|" << std::fixed << std::setprecision(5) << unitVector[0].first << " \t|" << unitVector[0].second << " \t|" << fit[0] << " \t|\n";
@@ -89,50 +88,117 @@ std::pair<int, int> parentGenerator(std::vector<double> fitness, double sumFit) 
 	auto generator = std::uniform_real_distribution<double>(0.0, sumFit);
 	double p1 = generator(engine);
 	int chosenIndex;
-	if (p1 < fitness[0])
+	int index1 = 0, index2 = 0;
+	bool foundCorrect = false;
+	while (!foundCorrect)
 	{
-		parent.first = chosenIndex = 0;
-	}
-	else if (p1 < fitness[0] + fitness[1])
-	{
-		parent.first = chosenIndex = 1;
-	}
-	else if (p1 < fitness[0] + fitness[1] + fitness[2])
-	{
-		parent.first = chosenIndex = 2;
-	}
-	else
-	{
-		parent.first = chosenIndex = 3;
+		double sum = 0;
+		index1++;
+		for (int j = 0; j < index1; j++)
+		{
+			sum += fitness[j];
+			if (p1 <= sum)
+			{
+				foundCorrect = true;
+			}
+		}
+		sum = 0;
 	}
 	bool mistake = true;
 	while (mistake)
 	{
-		mistake = false;
 		generator = std::uniform_real_distribution<double>(0.0, sumFit);
-		double p2 = generator(engine);
-		if (p2 < fitness[0])
+		double rip2 = generator(engine);
+		mistake = false;
+		foundCorrect = false;
+		while (!foundCorrect)
 		{
-			parent.second = 0;
-		}
-		else if (p2 < fitness[0] + fitness[1])
-		{
-			parent.second = 1;
-		}
-		else if (p2 < fitness[0] + fitness[1] + fitness[2])
-		{
-			parent.second = 2;
-		}
-		else
-		{
-			parent.second = 3;
-		}
-		if (parent.second == chosenIndex)
-		{
-			mistake = true;
+			double sum = 0;
+			index2++;
+			for (int j = 0; j < index2; j++)
+			{
+				sum += fitness[j];
+				if (rip2 <= sum)
+				{
+					foundCorrect = true;
+					if (index2 == index1)
+					{
+						mistake = true;
+						index2 = 0;
+					}
+				}
+			}
+			sum = 0;
 		}
 	}
+	parent = std::make_pair(index1 - 1, index2 - 1);
 	return parent;
+}
+
+std::vector < std::pair<double, double>> RIP(std::vector<std::pair<double, double>> populationBeforeSelection) // Селекция
+{
+	std::vector<double> fit;
+	double sumFit = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		fit.push_back(2 - fitness(populationBeforeSelection[i]));
+		sumFit += 2 - fitness(populationBeforeSelection[i]);
+	}
+	std::mt19937 engine(std::random_device{}());
+	auto generator = std::uniform_real_distribution<double>(0.0, sumFit);
+	double rip1 = generator(engine);
+	int index1 = 0, index2 = 0;
+	bool foundCorrect = false;
+	while (!foundCorrect)
+	{
+		double sum = 0;
+		index1++;
+		for (int j = 0; j < index1; j++)
+		{
+			sum += fit[j];
+			if (rip1 <= sum)
+			{
+				foundCorrect = true;
+			}
+		}
+		sum = 0;
+	}
+	bool mistake = true;
+	while (mistake)
+	{
+		generator = std::uniform_real_distribution<double>(0.0, sumFit);
+		double rip2 = generator(engine);
+		mistake = false;
+		foundCorrect = false;
+		while (!foundCorrect)
+		{
+			double sum = 0;
+			index2++;
+			for (int j = 0; j < index2; j++)
+			{
+				sum += fit[j];
+				if (rip2 <= sum)
+				{
+					foundCorrect = true;
+					if (index2 == index1)
+					{
+						mistake = true;
+						index2 = 0;
+					}
+				}
+			}
+			sum = 0;
+		}
+	}
+	std::vector<std::pair<double, double>> populationAfterSelection;
+	for (int i = 0; i < 6; i++)
+	{
+		if ((i != index1 - 1) && (i != index2 - 1))
+		{
+			populationAfterSelection.push_back(populationBeforeSelection[i]);
+		}
+	}
+	return populationAfterSelection;
 }
 
 std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, double>> unitVector) // Итерация
@@ -140,7 +206,7 @@ std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, d
 	std::vector<std::pair<double, double>> newVector = unitVector;
 	std::mt19937 engine(std::random_device{}());
 	std::vector<double> fit(4);
-	double maxFit = -1;
+	double maxFit = 0;
 	double sumFit = 0;
 	for (int i = 0; i < 4; i++)
 	{
@@ -149,8 +215,8 @@ std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, d
 	}
 	std::pair<int, int> parent = parentGenerator(fit, sumFit);
 	std::pair<std::pair<double, double>, std::pair<double, double>> newChildren = children(unitVector[parent.first], unitVector[parent.second]);
-	newVector.push_back (newChildren.first);
-	newVector.push_back (newChildren.second);
+	newVector.push_back(newChildren.first);
+	newVector.push_back(newChildren.second);
 	for (int i = 0; i < 6; i++)
 	{
 		auto generator = std::uniform_real_distribution<double>(0.0, 1.0);
@@ -160,43 +226,8 @@ std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, d
 			newVector[i] = mutation(newVector[i]);
 		}
 	}
-	std::vector<double> newFit(6);
+	std::vector<std::pair<double, double>> vectorAfterDelete = RIP(newVector);
 	sumFit = 0;
-	for (int i = 0; i < 6; i++)
-	{
-		newFit[i] = fitness(newVector[i]);
-	}
-	double minFit = 1;
-	int minFitIndex1;
-	for (int i = 0; i < 6; i++)
-	{
-		if (newFit[i] < minFit)
-		{
-			minFit = newFit[i];
-			minFitIndex1 = i;
-		}
-	}
-	minFit = 1;
-	int minFitIndex2;
-	for (int i = 0; i < 6; i++)
-	{
-		if (i != minFitIndex1)
-		{
-			if (newFit[i] < minFit)
-			{
-				minFit = newFit[i];
-				minFitIndex2 = i;
-			}
-		}
-	}
-	std::vector<std::pair<double, double>> vectorAfterDelete;
-	for (int i = 0; i < 6; i++)
-	{
-		if ((i != minFitIndex1) && (i != minFitIndex2))
-		{
-			vectorAfterDelete.push_back(newVector[i]);
-		}
-	}
 	unitVector = vectorAfterDelete;
 	for (int i = 0; i < 4; i++)
 	{
@@ -205,7 +236,6 @@ std::vector<std::pair<double, double>> iteration(std::vector<std::pair<double, d
 	}
 	for (int i = 0; i < 4; i++)
 	{
-		//fit[i] /= sumFit;
 		maxFit = std::max(maxFit, fit[i]);
 	}
 	for (int i = 0; i < 4; i++)
@@ -242,4 +272,4 @@ int main()
 	geneticsAlgorithm(10);
 	system("pause");
 	return 0;
-}
+}  
